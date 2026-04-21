@@ -22,7 +22,8 @@
             border-bottom-left-radius: 35px;
             border-bottom-right-radius: 35px;
             box-shadow: 0 10px 20px rgba(9, 132, 227, 0.2);
-            padding: 30px 20px 30px 20px !important;
+            padding: 20px 20px 30px 20px !important;
+            padding-top: max(20px, env(safe-area-inset-top)) !important;
             margin-bottom: 0px !important;
             height: auto !important;
         }
@@ -173,12 +174,9 @@
         <div id="user-detail">
             <div class="avatar">
                 @if (!empty(Auth::guard('guru')->user()->foto))
-                    @php
-                        $path = Storage::url('uploads/guru/' . Auth::guard('guru')->user()->foto);
-                    @endphp
-                    <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:60px">
+                    <img src="{{ asset('storage/uploads/guru/' . Auth::guard('guru')->user()->foto) }}" alt="avatar" class="imaged w64" style="height:60px; width:60px; object-fit:cover;">
                 @else
-                    <img src="assets/img/sample/avatar/avatar1.jpg" alt="avatar" class="imaged w64 rounded">
+                    <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded">
                 @endif
             </div>
             <div class="user-info-custom" style="display: flex; flex-direction: column; justify-content: center;">

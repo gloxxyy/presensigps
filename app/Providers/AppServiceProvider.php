@@ -24,8 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // if (config('app.env') == 'local') {
-        //     URL::forceScheme('https');
-        // }
+        // Paksakan URL dasar memakai APP_URL dari .env untuk menimpa isu cache localhost
+        if (env('APP_URL') !== 'http://localhost') {
+            URL::forceRootUrl(env('APP_URL'));
+        }
     }
 }
