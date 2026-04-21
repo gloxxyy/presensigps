@@ -46,7 +46,7 @@
                                         {{ $rekappresensi->jmlhadir }}
                                     </div>
                                     <div class="text-muted">
-                                        Karyawan hadir
+                                        Pegawai hadir
                                     </div>
                                 </div>
                             </div>
@@ -81,7 +81,7 @@
                                         {{ $rekappresensi->jmlizin }}
                                     </div>
                                     <div class="text-muted">
-                                        Karyawan Izin
+                                        Pegawai Izin
                                     </div>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@
                                         {{ $rekappresensi->jmlsakit }}
                                     </div>
                                     <div class="text-muted">
-                                        Karyawan Sakit
+                                        Pegawai Sakit
                                     </div>
                                 </div>
                             </div>
@@ -148,7 +148,7 @@
                                         {{ $rekappresensi->jmlterlambat }}
                                     </div>
                                     <div class="text-muted">
-                                        Karyawan Terlambat
+                                        Pegawai Terlambat
                                     </div>
                                 </div>
                             </div>

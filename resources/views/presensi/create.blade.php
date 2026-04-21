@@ -69,10 +69,10 @@
         <div class="col">
             <input type="hidden" id="lokasi">
             <div style="position:relative;">
-                <div class="webcam-capture"></div>
-                <!-- Overlay video tersembunyi untuk face recognition -->
-                <video id="faceVideo" autoplay muted playsinline style="display:none; position:absolute; top:0; left:0; width:100%; border-radius:15px;"></video>
-                <canvas id="faceOverlay" style="display:none; position:absolute; top:0; left:0;"></canvas>
+                <div class="webcam-capture" style="display:none;"></div>
+                <!-- Overlay video untuk face recognition & absen -->
+                <video id="faceVideo" autoplay muted playsinline style="display:block; width:100%; border-radius:15px;"></video>
+                <canvas id="faceOverlay" style="position:absolute; top:0; left:0; z-index:10; pointer-events:none;"></canvas>
                 <div id="faceStatusBadge">⏳ Memuat AI...</div>
             </div>
         </div>
@@ -156,7 +156,7 @@
 
         // Webcam untuk foto absen
         Webcam.set({ height: 480, width: 640, image_format: 'jpeg', jpeg_quality: 80 });
-        Webcam.attach('.webcam-capture');
+        // SEMENTARA DIMATIKAN UNTUK TEST KONFLIK KAMERA: Webcam.attach('.webcam-capture');
 
         // Geolocation
         var lokasi = document.getElementById('lokasi');
@@ -294,7 +294,8 @@
                     faceInfoBox.textContent = '✅ Wajah Anda berhasil diverifikasi! Silakan absen sekarang.';
                     btnAbsen.disabled = false;
 
-                    video.srcObject.getTracks().forEach(t => t.stop());
+                    // Biarkan kamera menyala untuk dijepret saat tombol absen ditekan
+                    // video.srcObject.getTracks().forEach(t => t.stop());
                 } else {
                     faceStatusBadge.className = 'danger';
                     faceStatusBadge.textContent = '❌ Wajah tidak cocok';
@@ -313,10 +314,26 @@
         // ABSEN BUTTON
         // ============================================================
         $("#takeabsen").click(function(e) {
-            Webcam.snap(function(uri) {
-                image = uri;
-            });
+            var videoCapture = document.getElementById('faceVideo');
+            if(!videoCapture || !videoCapture.srcObject) {
+                 Swal.fire({title: 'Kamera Error', text: 'Kamera belum aktif atau akses ditolak.', icon: 'error'});
+                 return;
+            }
+            // Menggambar output kamera ke canvas untuk dijadikan foto
+            var canvas = document.createElement('canvas');
+            canvas.width = 480; 
+            canvas.height = 640; 
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(videoCapture, 0, 0, canvas.width, canvas.height);
+            var image = canvas.toDataURL('image/jpeg', 0.8);
+
             var lokasi = $("#lokasi").val();
+            
+            if (lokasi === "") {
+                Swal.fire({title: 'Lokasi Belum Ditemukan!', text: 'Sistem belum mendapatkan koordinat GPS Anda. Pastikan Fitur Lokasi/GPS di HP menyala.', icon: 'warning'});
+                return;
+            }
+
             $.ajax({
                 type: 'POST',
                 url: '/presensi/store',
@@ -350,6 +367,13 @@
                             icon: 'error'
                         });
                     }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        title: 'Server Error!',
+                        text: 'Terjadi kesalahan sistem: ' + xhr.status,
+                        icon: 'error'
+                    });
                 }
             });
         });
