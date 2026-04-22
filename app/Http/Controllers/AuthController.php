@@ -28,15 +28,15 @@ class AuthController extends Controller
 
     public function proseslogoutadmin()
     {
-        if (Auth::guard('user')->check()) {
-            Auth::guard('user')->logout();
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
             return redirect('/panel');
         }
     }
 
     public function prosesloginadmin(Request $request)
     {
-        if (Auth::guard('user')->attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return redirect('/panel/dashboardadmin');
         } else {
             return redirect('/panel')->with(['warning' => 'Username atau Password Salah']);

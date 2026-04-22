@@ -36,7 +36,7 @@ Route::middleware(['guest:guru'])->group(function () {
 });
 
 // ----- Auth Admin (panel) -----
-Route::middleware(['guest:user'])->group(function () {
+Route::middleware(['guest:web'])->group(function () {
     Route::get('/panel', function () {
         return view('auth.loginadmin');
     })->name('loginadmin');
@@ -98,7 +98,7 @@ Route::middleware(['auth:guru'])->group(function () {
 
 
 // ----- Routes Administrator & Admin Jurusan -----
-Route::group(['middleware' => ['role:administrator|admin departemen,user']], function () {
+Route::group(['middleware' => ['auth:web', 'role:administrator|admin departemen,web']], function () {
     Route::get('/proseslogoutadmin', [AuthController::class, 'proseslogoutadmin']);
     Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
 
@@ -135,7 +135,7 @@ Route::group(['middleware' => ['role:administrator|admin departemen,user']], fun
 
 
 // ----- Routes Khusus Administrator -----
-Route::group(['middleware' => ['role:administrator,user']], function () {
+Route::group(['middleware' => ['auth:web', 'role:administrator,web']], function () {
 
     // Data Guru (CRUD Penuh)
     Route::post('/guru/store', [GuruController::class, 'store']);
