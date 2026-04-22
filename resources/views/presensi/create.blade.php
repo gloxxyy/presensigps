@@ -155,7 +155,7 @@
         var radius_sound   = document.getElementById('radius_sound');
 
         // Webcam untuk foto absen
-        Webcam.set({ height: 480, width: 640, image_format: 'jpeg', jpeg_quality: 80 });
+        // Webcam.set({ height: 480, width: 640, image_format: 'jpeg', jpeg_quality: 80 });
         // SEMENTARA DIMATIKAN UNTUK TEST KONFLIK KAMERA: Webcam.attach('.webcam-capture');
 
         // Geolocation
@@ -252,16 +252,40 @@
 
     async function startFaceCamera() {
         const video = document.getElementById('faceVideo');
+        const constraints = {
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: "user" // Memastikan kamera depan yang digunakan
+            }
+        };
+    
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
+            // Cek apakah browser mendukung
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("Browser Anda tidak mendukung akses kamera.");
+            }
+    
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = stream;
-
-            video.addEventListener('loadedmetadata', () => {
+    
+            video.onloadedmetadata = () => {
+                video.play();
                 detectFaceLoop(video);
-            });
-        } catch(e) {
+            };
+        } catch (e) {
+            console.error("Error akses kamera:", e);
             btnAbsen.disabled = false;
-            faceInfoBox.textContent = 'Tidak bisa akses kamera untuk verifikasi wajah. Pastikan izin kamera diberikan.';
+            // Tampilkan pesan error yang lebih jelas di UI
+            faceInfoBox.className = 'alert alert-danger py-2 mb-1';
+            faceInfoBox.textContent = 'Gagal akses kamera: ' + e.message + '. Pastikan izin diberikan di pengaturan browser.';
+            
+            // Trigger manual popup jika gagal otomatis (khusus beberapa browser)
+            Swal.fire({
+                title: 'Izin Kamera Dibutuhkan',
+                text: 'Klik tombol di pojok alamat web (ikon gembok) untuk mengizinkan kamera, lalu refresh halaman.',
+                icon: 'warning'
+            });
         }
     }
 
@@ -315,15 +339,18 @@
         // ============================================================
         $("#takeabsen").click(function(e) {
             var videoCapture = document.getElementById('faceVideo');
-            if(!videoCapture || !videoCapture.srcObject) {
-                 Swal.fire({title: 'Kamera Error', text: 'Kamera belum aktif atau akses ditolak.', icon: 'error'});
-                 return;
-            }
-            // Menggambar output kamera ke canvas untuk dijadikan foto
+            
+            // Buat canvas untuk capture
             var canvas = document.createElement('canvas');
-            canvas.width = 480; 
-            canvas.height = 640; 
+            // Gunakan ukuran asli video dari stream
+            canvas.width = videoCapture.videoWidth;
+            canvas.height = videoCapture.videoHeight;
+            
             var ctx = canvas.getContext('2d');
+            // Mirroring jika kamera depan (opsional, tapi biasanya guru lebih suka ini)
+            // ctx.translate(canvas.width, 0);
+            // ctx.scale(-1, 1);
+            
             ctx.drawImage(videoCapture, 0, 0, canvas.width, canvas.height);
             var image = canvas.toDataURL('image/jpeg', 0.8);
 
